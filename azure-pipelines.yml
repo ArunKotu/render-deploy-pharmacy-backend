@@ -1,46 +1,61 @@
 trigger:
-  - main
+- main
 
 pool:
   vmImage: 'ubuntu-latest'
 
 variables:
+  acrName: 'pharmacybackend'
   imageRepository: 'pharmacy-backend'
-  dockerfilePath: 'Dockerfile'
-  tag: '$(Build.BuildId)'
+  imageTag: '$(Build.BuildId)'
+  appName: 'pharmacy-backend-arun'
+  resourceGroup: 'vms-group'
 
 steps:
 
-  # Checkout source
-  - checkout: self
+- checkout: self
 
-  # Build Spring Boot application
-  - task: Maven@4
-    displayName: 'Build Spring Boot'
-    inputs:
-      mavenPomFile: 'pom.xml'
-      goals: 'clean package'
-      publishJUnitResults: false
-      javaHomeOption: 'JDKVersion'
-      jdkVersionOption: '17'
-      jdkArchitectureOption: 'x64'
+# Build Spring Boot
+- task: Maven@4
+  displayName: 'Build Spring Boot'
+  inputs:
+    mavenPomFile: 'pom.xml'
+    goals: 'clean package -DskipTests'
+    publishJUnitResults: false
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '21'
+    jdkArchitectureOption: 'x64'
 
-  # Build and Push Docker image to Azure Container Registry
-  - task: Docker@2
-    displayName: 'Build and Push Docker Image'
-    inputs:
-      command: 'buildAndPush'
-      containerRegistry: 'pharmacy-acr'
-      repository: '$(imageRepository)'
-      dockerfile: '$(dockerfilePath)'
-      tags: |
-        $(tag)
-        latest
+# Login to Azure, build image, push to ACR
+- task: AzureCLI@2
+  displayName: 'Build and Push Docker Image'
+  inputs:
+    azureSubscription: 'azure-rm-connection'
+    scriptType: bash
+    scriptLocation: inlineScript
+    inlineScript: |
+      az acr login --name $(acrName)
 
-  # Deploy Docker image to Azure App Service
-  - task: AzureWebAppContainer@1
-    displayName: 'Deploy to Azure Web App'
-    inputs:
-      azureSubscription: 'azure-rm-connection'
-      appName: 'pharmacy-backend-arun'
-      containers: 'pharmacybackend.azurecr.io/pharmacy-backend:$(Build.BuildId)'
+      docker build -t $(acrName).azurecr.io/$(imageRepository):$(imageTag) .
+      docker tag $(acrName).azurecr.io/$(imageRepository):$(imageTag) \
+                 $(acrName).azurecr.io/$(imageRepository):latest
+
+      docker push $(acrName).azurecr.io/$(imageRepository):$(imageTag)
+      docker push $(acrName).azurecr.io/$(imageRepository):latest
+
+# Configure App Service to use the new image
+- task: AzureCLI@2
+  displayName: 'Deploy to Azure App Service'
+  inputs:
+    azureSubscription: 'azure-rm-connection'
+    scriptType: bash
+    scriptLocation: inlineScript
+    inlineScript: |
+      az webapp config container set \
+        --resource-group $(resourceGroup) \
+        --name $(appName) \
+        --container-image-name $(acrName).azurecr.io/$(imageRepository):$(imageTag)
+
+      az webapp restart \
+        --resource-group $(resourceGroup) \
+        --name $(appName)
