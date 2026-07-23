@@ -5,7 +5,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  acrName: 'pharmacybackend'
+  acrName: 'pharmacybackend2026'
   imageRepository: 'pharmacy-backend'
   imageTag: '$(Build.BuildId)'
   appName: 'pharmacy-backend-arun'
