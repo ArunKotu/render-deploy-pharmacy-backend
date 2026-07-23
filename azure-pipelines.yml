@@ -2,41 +2,45 @@ trigger:
   - main
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'ubuntu-latest'
 
 variables:
-  acrName: pharmacybackend
-  imageRepository: pharmacy-backend
-  dockerfilePath: Dockerfile
-  tag: $(Build.BuildId)
+  imageRepository: 'pharmacy-backend'
+  dockerfilePath: 'Dockerfile'
+  tag: '$(Build.BuildId)'
 
 steps:
 
+  # Checkout source
   - checkout: self
 
+  # Build Spring Boot application
   - task: Maven@4
-    displayName: Build Spring Boot
+    displayName: 'Build Spring Boot'
     inputs:
-      mavenPomFile: pom.xml
-      goals: clean package
+      mavenPomFile: 'pom.xml'
+      goals: 'clean package'
       publishJUnitResults: false
-      javaHomeOption: JDKVersion
-      jdkVersionOption: '21'
+      javaHomeOption: 'JDKVersion'
+      jdkVersionOption: '17'
+      jdkArchitectureOption: 'x64'
 
+  # Build and Push Docker image to Azure Container Registry
   - task: Docker@2
-    displayName: Build and Push Docker Image
+    displayName: 'Build and Push Docker Image'
     inputs:
-      command: buildAndPush
-      containerRegistry: pharmacy-acr
-      repository: $(imageRepository)
-      dockerfile: $(dockerfilePath)
+      command: 'buildAndPush'
+      containerRegistry: 'pharmacy-acr'
+      repository: '$(imageRepository)'
+      dockerfile: '$(dockerfilePath)'
       tags: |
         $(tag)
         latest
 
+  # Deploy Docker image to Azure App Service
   - task: AzureWebAppContainer@1
-    displayName: Deploy to Azure App Service
+    displayName: 'Deploy to Azure Web App'
     inputs:
-      azureSubscription: azure-rm-connection
-      appName: pharmacy-backend-arun
-      containers: pharmacybackend.azurecr.io/pharmacy-backend:latest
+      azureSubscription: 'azure-rm-connection'
+      appName: 'pharmacy-backend-arun'
+      containers: 'pharmacybackend.azurecr.io/pharmacy-backend:$(Build.BuildId)'
