@@ -1,0 +1,42 @@
+trigger:
+  - main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  acrName: pharmacybackend
+  imageRepository: pharmacy-backend
+  dockerfilePath: Dockerfile
+  tag: $(Build.BuildId)
+
+steps:
+
+  - checkout: self
+
+  - task: Maven@4
+    displayName: Build Spring Boot
+    inputs:
+      mavenPomFile: pom.xml
+      goals: clean package
+      publishJUnitResults: false
+      javaHomeOption: JDKVersion
+      jdkVersionOption: '21'
+
+  - task: Docker@2
+    displayName: Build and Push Docker Image
+    inputs:
+      command: buildAndPush
+      containerRegistry: pharmacy-acr
+      repository: $(imageRepository)
+      dockerfile: $(dockerfilePath)
+      tags: |
+        $(tag)
+        latest
+
+  - task: AzureWebAppContainer@1
+    displayName: Deploy to Azure App Service
+    inputs:
+      azureSubscription: azure-rm-connection
+      appName: pharmacy-backend-arun
+      containers: pharmacybackend.azurecr.io/pharmacy-backend:latest
