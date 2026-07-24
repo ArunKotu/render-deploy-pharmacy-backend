@@ -15,9 +15,7 @@ public class CorsConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOriginPatterns(List.of(
-                "http://localhost:5173",
-                "https://yellow-glacier-011e74e10.7.azurestaticapps.net",
-                "https://polite-pebble-00ab2aa10.7.azurestaticapps.net"
+                "https://vercel-pharmacy-frontend-dbccdio4v-arunkotus-projects.vercel.app/"
         ));
 
         configuration.setAllowedMethods(
