@@ -15,7 +15,7 @@ public class CorsConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOriginPatterns(List.of(
-                "https://vercel-pharmacy-frontend-dbccdio4v-arunkotus-projects.vercel.app/"
+                "https://pharmacy-frontend-opal.vercel.app/"
         ));
 
         configuration.setAllowedMethods(
