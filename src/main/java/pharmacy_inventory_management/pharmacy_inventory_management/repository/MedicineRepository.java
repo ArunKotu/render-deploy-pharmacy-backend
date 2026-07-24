@@ -45,6 +45,21 @@ public interface MedicineRepository extends JpaRepository<Medicine, Long> {
             String manufacturer,
             Pageable pageable
     );
+    long count();
+
+    long countByQuantityLessThanEqual(Integer quantity);
+
+    long countByQuantity(Integer quantity);
+    @Query("""
+SELECT COUNT(u)
+FROM User u
+JOIN u.roles r
+WHERE r.roleName = 'PHARMACIST'
+""")
+    long countPharmacists();
+    long countByExpiryDateBetween(LocalDate start, LocalDate end);
+
+    List<Medicine> findAll();
 
     // Low Stock Medicines
     List<Medicine> findByQuantityLessThanEqual(Integer quantity);

@@ -1,12 +1,8 @@
 spring:
-
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
-  jpa:
     hibernate:
       ddl-auto: update
 
@@ -17,7 +13,7 @@ spring:
         format_sql: true
 
 server:
-  port: ${PORT}
+  port: ${SERVER_PORT}
 
 jwt:
   secret: ${JWT_SECRET}
@@ -25,7 +21,3 @@ jwt:
 
 app:
   low-stock-limit: ${LOW_STOCK_LIMIT}
-
-logging:
-  level:
-    org.springframework.security: DEBUG
