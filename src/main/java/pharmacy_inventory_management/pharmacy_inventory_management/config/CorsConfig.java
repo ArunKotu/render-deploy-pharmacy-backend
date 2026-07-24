@@ -16,7 +16,8 @@ public class CorsConfig {
 
         configuration.setAllowedOriginPatterns(List.of(
                 "http://localhost:5173",
-                "https://yellow-glacier-011e74e10.7.azurestaticapps.net"
+                "https://yellow-glacier-011e74e10.7.azurestaticapps.net",
+                "https://polite-pebble-00ab2aa10.7.azurestaticapps.net"
         ));
 
         configuration.setAllowedMethods(
