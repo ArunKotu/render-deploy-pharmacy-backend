@@ -14,19 +14,17 @@ public class CorsConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOriginPatterns(List.of(
-                "*"
-        ));
+        configuration.setAllowedOrigins(List.of(
+    "https://pharmacy-frontend-l05wv5ys7-arunkotus-projects.vercel.app"
+));
 
-        configuration.setAllowedMethods(
-                List.of("GET","POST","PUT","DELETE","OPTIONS")
-        );
+configuration.setAllowedMethods(List.of(
+    "GET", "POST", "PUT", "DELETE", "OPTIONS"
+));
 
-        configuration.setAllowedHeaders(
-                List.of("*")
-        );
+configuration.setAllowedHeaders(List.of("*"));
 
-        configuration.setAllowCredentials(true);
+configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
